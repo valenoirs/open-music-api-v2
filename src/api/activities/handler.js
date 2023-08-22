@@ -12,7 +12,7 @@ class ActivitiesHandler {
     const { id: playlistId } = req.params
     const { userId: credentialId } = req.auth.credentials
 
-    await this._playlistsService.verifyPlaylistOwner(playlistId, credentialId)
+    await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId)
     const activities = await this._activitiesService.readActivities(playlistId)
 
     return {

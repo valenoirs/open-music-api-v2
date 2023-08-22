@@ -3,6 +3,7 @@ const { nanoid } = require('nanoid')
 const bcrypt = require('bcrypt')
 
 const InvariantError = require('../exceptions/InvariantError')
+const NotFoundError = require('../exceptions/NotFoundError')
 
 class UsersService {
   constructor() {
@@ -28,6 +29,21 @@ class UsersService {
     }
 
     return result.rows[0].user_id
+  }
+
+  async getUserById(user_id) {
+    const query = {
+      text: 'SELECT * FROM users WHERE user_id = $1',
+      values: [user_id],
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rowCount) {
+      throw new NotFoundError('User not found')
+    }
+
+    return result.rowCount[0]
   }
 
   async verifyNewUsername(username) {

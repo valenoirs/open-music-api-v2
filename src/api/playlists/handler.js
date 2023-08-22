@@ -63,7 +63,7 @@ class PlaylistsHandler {
 
     await this._songsService.readSongById(songId)
 
-    await this._playlistsService.verifyPlaylistOwner(playlist_id, credentialId)
+    await this._playlistsService.verifyPlaylistAccess(playlist_id, credentialId)
     await this._playlistsService.createPlaylistSongs(playlist_id, songId)
 
     await this._activitiesService.createActivities(
@@ -85,7 +85,7 @@ class PlaylistsHandler {
     const { id: playlist_id } = req.params
     const { userId: credentialId } = req.auth.credentials
 
-    await this._playlistsService.verifyPlaylistOwner(playlist_id, credentialId)
+    await this._playlistsService.verifyPlaylistAccess(playlist_id, credentialId)
     const playlist = await this._playlistsService.readPlaylistById(playlist_id)
     const songs = await this._playlistsService.readPlaylistSongs(playlist_id)
 
@@ -106,7 +106,7 @@ class PlaylistsHandler {
 
     await this._songsService.readSongById(songId)
 
-    await this._playlistsService.verifyPlaylistOwner(playlist_id, credentialId)
+    await this._playlistsService.verifyPlaylistAccess(playlist_id, credentialId)
     await this._playlistsService.deletePlaylistSongs(playlist_id, songId)
 
     await this._activitiesService.createActivities(
