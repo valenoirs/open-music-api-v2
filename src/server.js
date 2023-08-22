@@ -26,6 +26,11 @@ const authenticationsHandler = require('./api/authentications')
 const AuthenticationsService = require('./services/AuthenticationsService')
 const AuthenticationsValidator = require('./validator/authentications')
 
+// Playlists
+const playlistsHandler = require('./api/playlists')
+const PlaylistsService = require('./services/PlaylistsService')
+const PlaylistsValidator = require('./validator/playlists')
+
 const init = async () => {
   const server = Hapi.server({
     port: process.env.PORT,
@@ -54,7 +59,7 @@ const init = async () => {
     validate: (artifacts) => ({
       isValid: true,
       credentials: {
-        id: artifacts.decoded.payload.id,
+        userId: artifacts.decoded.payload.userId,
       },
     }),
   })
@@ -83,6 +88,14 @@ const init = async () => {
       },
     },
     {
+      plugin: playlistsHandler,
+      options: {
+        playlistsService: new PlaylistsService(),
+        songsService: new SongsService(),
+        validator: PlaylistsValidator,
+      },
+    },
+    {
       plugin: authenticationsHandler,
       options: {
         authenticationsService: new AuthenticationsService(),
@@ -108,6 +121,8 @@ const init = async () => {
       if (!response.isServer) {
         return h.continue
       }
+
+      console.log(response)
 
       return h
         .response({

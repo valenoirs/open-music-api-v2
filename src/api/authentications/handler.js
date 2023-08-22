@@ -14,14 +14,10 @@ class AuthenticationsHandler {
 
     const { username, password } = req.payload
 
-    console.log(username, password)
-
     const userId = await this._authenticationsService.verifyUserCredential(
       username,
       password
     )
-
-    console.log(userId)
 
     const accessToken = this._tokenManager.generateAccessToken({ userId })
     const refreshToken = this._tokenManager.generateRefreshToken({ userId })
