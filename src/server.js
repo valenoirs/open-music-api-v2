@@ -31,6 +31,10 @@ const playlistsHandler = require('./api/playlists')
 const PlaylistsService = require('./services/PlaylistsService')
 const PlaylistsValidator = require('./validator/playlists')
 
+// Playlists
+const activitiesHandler = require('./api/activities')
+const ActivitiesService = require('./services/ActivitiesService')
+
 const init = async () => {
   const server = Hapi.server({
     port: process.env.PORT,
@@ -88,10 +92,18 @@ const init = async () => {
       },
     },
     {
+      plugin: activitiesHandler,
+      options: {
+        activitiesService: new ActivitiesService(),
+        playlistsService: new PlaylistsService(),
+      },
+    },
+    {
       plugin: playlistsHandler,
       options: {
         playlistsService: new PlaylistsService(),
         songsService: new SongsService(),
+        activitiesService: new ActivitiesService(),
         validator: PlaylistsValidator,
       },
     },
