@@ -4,6 +4,7 @@ const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
 
 const ClientError = require('./exceptions/ClientError')
+const TokenManager = require('./tokenize/TokenManager')
 
 // Album
 const albumHandler = require('./api/albums')
@@ -14,6 +15,16 @@ const AlbumsValidator = require('./validator/albums')
 const songHandler = require('./api/songs')
 const SongsService = require('./services/SongsService')
 const SongsValidator = require('./validator/songs')
+
+// Users
+const usersHandler = require('./api/users')
+const UsersService = require('./services/UsersService')
+const UsersValidator = require('./validator/users')
+
+// Authentications
+const authenticationsHandler = require('./api/authentications')
+const AuthenticationsService = require('./services/AuthenticationsService')
+const AuthenticationsValidator = require('./validator/authentications')
 
 const init = async () => {
   const server = Hapi.server({
@@ -62,6 +73,21 @@ const init = async () => {
       options: {
         songsService: new SongsService(),
         validator: SongsValidator,
+      },
+    },
+    {
+      plugin: usersHandler,
+      options: {
+        usersService: new UsersService(),
+        validator: UsersValidator,
+      },
+    },
+    {
+      plugin: authenticationsHandler,
+      options: {
+        authenticationsService: new AuthenticationsService(),
+        validator: AuthenticationsValidator,
+        tokenManager: TokenManager,
       },
     },
   ])

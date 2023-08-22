@@ -11,25 +11,25 @@ class AuthenticationsService {
 
   async verifyUserCredential(username, password) {
     const query = {
-      text: 'SELECT id, password FROM users WHERE username = $1',
+      text: 'SELECT user_id, password FROM users WHERE username = $1',
       values: [username],
     }
 
     const result = await this._pool.query(query)
 
-    if (!result.rowsCount) {
+    if (!result.rowCount) {
       throw new AuthenticationError('Invalid user credential')
     }
 
-    const { id, password: hashedPassword } = result.rows[0]
+    const { user_id, password: hashedPassword } = result.rows[0]
 
-    const match = bcrypt.compare(password, hashedPassword)
+    const match = await bcrypt.compare(password, hashedPassword)
 
     if (!match) {
       throw new AuthenticationError('Invalid user credential')
     }
 
-    return id
+    return user_id
   }
 
   async createRefreshToken(token) {

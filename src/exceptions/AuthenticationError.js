@@ -4,7 +4,7 @@ class AuthenticationError extends ClientError {
   constructor(message) {
     super(message)
 
-    this.statusCode = 404
+    this.statusCode = 401
     this.name = 'AuthenticationError'
   }
 }

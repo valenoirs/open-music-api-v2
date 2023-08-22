@@ -11,7 +11,7 @@ class UsersHandler {
   async postUserHandler(req, h) {
     this._validator.validateUserPayload(req.payload)
 
-    const userId = this._usersService.createNewUser(req.payload)
+    const userId = await this._usersService.createNewUser(req.payload)
 
     return h
       .response({

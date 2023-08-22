@@ -14,7 +14,7 @@ class UsersService {
 
     const id = `user-${nanoid(16)}`
 
-    const hashedPassword = bcrypt.hash(password, 12)
+    const hashedPassword = await bcrypt.hash(password, 12)
 
     const query = {
       text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING user_id',
@@ -38,7 +38,7 @@ class UsersService {
 
     const result = await this._pool.query(query)
 
-    if (!result.rowsCount) {
+    if (result.rowCount) {
       throw new InvariantError(
         'Failed to create new user, username already existed'
       )
