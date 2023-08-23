@@ -8,39 +8,47 @@ const TokenManager = require('./tokenize/TokenManager')
 
 // Album
 const albumHandler = require('./api/albums')
-const AlbumsService = require('./services/AlbumsService')
+const AlbumsService = require('./services/postgres/AlbumsService')
 const AlbumsValidator = require('./validator/albums')
 
 // Songs
 const songHandler = require('./api/songs')
-const SongsService = require('./services/SongsService')
+const SongsService = require('./services/postgres/SongsService')
 const SongsValidator = require('./validator/songs')
 
 // Users
 const usersHandler = require('./api/users')
-const UsersService = require('./services/UsersService')
+const UsersService = require('./services/postgres/UsersService')
 const UsersValidator = require('./validator/users')
 
 // Authentications
 const authenticationsHandler = require('./api/authentications')
-const AuthenticationsService = require('./services/AuthenticationsService')
+const AuthenticationsService = require('./services/postgres/AuthenticationsService')
 const AuthenticationsValidator = require('./validator/authentications')
 
 // Playlists
 const playlistsHandler = require('./api/playlists')
-const PlaylistsService = require('./services/PlaylistsService')
+const PlaylistsService = require('./services/postgres/PlaylistsService')
 const PlaylistsValidator = require('./validator/playlists')
 
 // Activities
 const activitiesHandler = require('./api/activities')
-const ActivitiesService = require('./services/ActivitiesService')
+const ActivitiesService = require('./services/postgres/ActivitiesService')
 
 // Collaborations
 const collaborationsHandler = require('./api/collaborations')
-const CollaborationsService = require('./services/CollaborationsService')
+const CollaborationsService = require('./services/postgres/CollaborationsService')
 const CollaborationsValidator = require('./validator/collaborations')
 
 const init = async () => {
+  const albumsService = new AlbumsService()
+  const songsService = new SongsService()
+  const usersService = new UsersService()
+  const authenticationsService = new AuthenticationsService()
+  const activitiesService = new ActivitiesService()
+  const collaborationsService = new CollaborationsService()
+  const playlistsService = new PlaylistsService(collaborationsService)
+
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -77,54 +85,54 @@ const init = async () => {
     {
       plugin: albumHandler,
       options: {
-        albumsService: new AlbumsService(),
-        songsService: new SongsService(),
+        albumsService,
+        songsService,
         validator: AlbumsValidator,
       },
     },
     {
       plugin: songHandler,
       options: {
-        songsService: new SongsService(),
+        songsService,
         validator: SongsValidator,
       },
     },
     {
       plugin: usersHandler,
       options: {
-        usersService: new UsersService(),
+        usersService,
         validator: UsersValidator,
       },
     },
     {
       plugin: activitiesHandler,
       options: {
-        activitiesService: new ActivitiesService(),
-        playlistsService: new PlaylistsService(new CollaborationsService()),
+        activitiesService,
+        playlistsService,
       },
     },
     {
       plugin: collaborationsHandler,
       options: {
-        collaborationsService: new CollaborationsService(),
-        playlistsService: new PlaylistsService(new CollaborationsService()),
-        usersService: new UsersService(),
+        collaborationsService,
+        playlistsService,
+        usersService,
         validator: CollaborationsValidator,
       },
     },
     {
       plugin: playlistsHandler,
       options: {
-        playlistsService: new PlaylistsService(new CollaborationsService()),
-        songsService: new SongsService(),
-        activitiesService: new ActivitiesService(),
+        playlistsService,
+        songsService,
+        activitiesService,
         validator: PlaylistsValidator,
       },
     },
     {
       plugin: authenticationsHandler,
       options: {
-        authenticationsService: new AuthenticationsService(),
+        authenticationsService,
         validator: AuthenticationsValidator,
         tokenManager: TokenManager,
       },
@@ -148,8 +156,6 @@ const init = async () => {
         return h.continue
       }
 
-      console.log(response)
-
       return h
         .response({
           status: 'error',
@@ -163,7 +169,8 @@ const init = async () => {
 
   await server
     .start()
-    .then(() => console.log(`Server running on ${server.info.uri}`))
+
+    .then(() => console.log(`Server running on ${server.info.uri}`)) // eslint-disable-line no-console
 }
 
 init()
